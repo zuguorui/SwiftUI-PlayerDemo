@@ -7,4 +7,6 @@
 
 import SwiftUI
 
-let PLAY_BUTTON_SIZE: CGFloat = 10.0
+struct Dimens {
+    static let playerButtonSize: CGFloat = 15.0
+}

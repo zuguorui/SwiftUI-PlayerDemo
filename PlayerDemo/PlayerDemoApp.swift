@@ -22,10 +22,12 @@ struct PlayerDemoApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    @StateObject var navPath = NavigationPath()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeScreen().environmentObject(navPath)
         }
         .modelContainer(sharedModelContainer)
     }
