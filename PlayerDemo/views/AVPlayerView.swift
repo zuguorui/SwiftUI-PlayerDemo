@@ -173,22 +173,30 @@ struct AVPlayerView: View {
         }.padding(.vertical, 10).background(.black)
     }
     
+    
+    @State var slideValue: Double = 0.0
     var slider: some View {
-        Slider(value: Binding(
-            get: {
-                Double(uiState.playPos)
-            },
-            set: { newValue in
-                
+        Slider(
+            value: Binding<Double>(
+                get: {
+                    slideValue == 0 ? Double(uiState.playPos) : slideValue
+                },
+                set: { newValue in
+                    slideValue = newValue
+                }
+            ),
+            in: 0...Double(max(uiState.duration, 1)),
+            label: { Text("视频进度").foregroundStyle(.white) },
+            minimumValueLabel: { Text("\(formatVideoDuration(uiState.playPos))").foregroundStyle(.white)},
+            maximumValueLabel: { Text("\(formatVideoDuration(uiState.duration))").foregroundStyle(.white) },
+            onEditingChanged: { editing in
+                if !editing {
+                    print("滑动结束: \(slideValue)")
+                    player.seek(to: CMTime(value: CMTimeValue(slideValue), timescale: 1000))
+                    slideValue = 0
+                }
             }
-        ), in: 0...Double(max(uiState.duration, 1)))
-        {
-            Text("视频进度").foregroundStyle(.white)
-        } minimumValueLabel: {
-            Text("\(formatVideoDuration(uiState.playPos))").foregroundStyle(.white)
-        } maximumValueLabel: {
-            Text("\(formatVideoDuration(uiState.duration))").foregroundStyle(.white)
-        }
+        )
     }
     
     private func getVideoInfo(from url: URL) async {
@@ -277,7 +285,7 @@ struct AVPlayerViewBridge: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        //context.coordinator.playerLayer?.frame = uiView.bounds
+        context.coordinator.playerLayer?.frame = uiView.bounds
     }
     
     func makeCoordinator() -> Coordinator {
